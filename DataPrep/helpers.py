@@ -92,9 +92,9 @@ def dot_click_annoation_file_to_pixelmap(anno_file,
 ##############################################################################
 
 def symquant_to_pixelmap_stub(anno_format,
-                                                width,
-                                                height,
-                                                dot_radius):
+                                        width,
+                                        height,
+                                        dot_radius):
     """
     TODO: Impliment and remove stub :)
     
@@ -161,6 +161,24 @@ def colocaliztion(pixelmap_list):
 
     
     return COLOCALIZED
+
+
+def chop_pixelmap():
+    """
+    TODO: Impliment and remove stub
+
+    This function 
+    """
+
+
+def empirical_prep():
+    """
+    TODO: Impliment and remove stub
+
+    This function 
+    """
+
+
 
 
 

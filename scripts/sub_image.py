@@ -2,6 +2,7 @@
 
 from PIL import Image
 # import matplotlib.image as plt
+import matplotlib.pyplot as plt
 import argparse
 import numpy as np
 
@@ -48,6 +49,10 @@ for i in range(256,1024,32):
         z_temp_array = Z_NUMPY[i:i+32,j:j+32]
         z_sub_images.append(z_temp_array)
         count += 1
+
+
+plt.imshow(g_sub_images[0], cmap='gray')
+plt.show()
 
 
 SUB_IMAGES = np.array([g_sub_images, s_sub_images, z_sub_images])
