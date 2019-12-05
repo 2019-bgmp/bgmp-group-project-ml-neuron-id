@@ -322,7 +322,8 @@ def generate_simulated_microscopy_sample(
         colocalization = [5] + [0 for _ in range(6)],
         width = 32,
         height = 32,
-        radius = 2,
+        min_radius = 1,
+        max_radius = 5,
         coloc_thresh = 3
         ):
     
@@ -348,8 +349,10 @@ def generate_simulated_microscopy_sample(
     :param: width <int> - width of the sample 
     
     :param: height <int> - height of the sample
-    
-    :param: radius <int> - radius of bumps
+
+    :param: min_radius <int> - minimum radius of bumps
+
+    :param: max_radius <int> - maximum radius of bumps
 
     :return: (3D numpy tensor, 2D numpy tensor) - this is going to 
         be the simulated 
@@ -371,7 +374,7 @@ def generate_simulated_microscopy_sample(
     """
     
     assert(len(colocalization) == 7)
-    assert(radius < (width // 2) and radius < (height // 2))
+    assert(max_radius < (width // 2) and max_radius < (height // 2))
     assert(coloc_thresh in [1,2,3])
     
     # initialize out empty layers.
@@ -387,18 +390,18 @@ def generate_simulated_microscopy_sample(
   
     for i,layers in enumerate(combs):
         for num_dots in range(colocalization[i]):
-            x = np.random.randint(radius, width - radius)
-            y = np.random.randint(radius, height - radius)
+            x = np.random.randint(max_radius, width - max_radius)
+            y = np.random.randint(max_radius, height - max_radius)
             for layer_index in layers:
                 layers_list[layer_index] += [(x,y)]
             if len(layers) >= coloc_thresh:
                 layers_list[3] += [(x,y)]
 
     channels = [simulate_single_layer(
-        layers_list[i], width, height, radius) for i in range(3)]
+        layers_list[i], width, height, min_radius, max_radius) for i in range(3)]
     simulated_sample = np.stack(channels,axis=2)    
     pixelmap_target = simulate_single_layer(
-        layers_list[3], width, height, radius, is_pixelmap = True)
+        layers_list[3], width, height, min_radius, max_radius, is_pixelmap = True)
 
     return simulated_sample, pixelmap_target
 
@@ -408,7 +411,8 @@ def simulate_single_layer(
         xy_list,
         width,
         height,
-        radius,
+        min_radius,
+        max_radius,
         is_pixelmap = False,
         ):
     """
@@ -418,7 +422,7 @@ def simulate_single_layer(
     
 
     # not implimented yet
-    assert(type(radius) == int)
+    # assert(type(radius) == int)
 
     # init the tensor to be returned.
     sim_bump = np.zeros([width, height])
@@ -429,6 +433,9 @@ def simulate_single_layer(
     
         # Draw nice circle and init an array to store
         # respective activations,
+        radius = int(np.random.exponential(scale=(max_radius+min_radius)/2))
+        while radius>max_radius or radius<min_radius:
+            radius = int(np.random.exponential(scale=(max_radius+min_radius)/2))
         xx,yy = circle(x,y,radius)
         if is_pixelmap:
             sim_bump[xx,yy] = 1
@@ -440,7 +447,7 @@ def simulate_single_layer(
         # we are going to compute the activation 
         for i in range(len(xx)):
 
-            # use pythagorian theorem to compute radius on discrete space!
+            # use pythagorean theorem to compute radius on discrete space!
             diff_from_center = math.sqrt((xx[i] - x)**2 + (yy[i] - y)**2)
 
             # This is where we sample from the exponential "bump"
@@ -449,7 +456,7 @@ def simulate_single_layer(
             # be so small :)
             activation = np.exp(-(diff_from_center**2))
        
-            # we then add guassian noise the add another level of randomness 
+            # we then add gaussian noise the add another level of randomness 
             activation_list[i] = activation + np.abs(np.random.normal(0,0.1))
 
         # finally, population the tensor.
@@ -459,7 +466,7 @@ def simulate_single_layer(
     # the main idea is: a by-product of our algorithm is that the center of all
     # synapses have an activation == to 1. we should correct for this 
     # because it's not realistic
-    # TODO This could be done slightly more effeciently.
+    # TODO This could be done slightly more efficiently.
     if not is_pixelmap:
         sim_bump[sim_bump > 1] = 1
         num_ones = len(sim_bump[sim_bump == 1])
