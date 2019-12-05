@@ -281,12 +281,61 @@ def f1_score(pixelmap1, pixelmap2):
 ##############################################################################
 
 # TODO Impliment
-def generate_whole_dataset_stub():
+def generate_whole_dataset_stub(num_samples, width = 32, height = 32):
     """
-    Come up with a simpler interface for running and saving a bunch of 
-    these images.
+    This function provides a simpler interface for running and saving a bunch of 
+    these images. It allows you to change the percentage 
+
+    :param: num_samples <int> - number of samples to generate
+            
+    :param: width <int> - width of the sample  DEFAULT = 32
+    
+    :param: height <int> - height of the sample  DEFAULT = 32
+
+    :return: [x:4D numpy tensor, y:4D numpy tensor] - x: simulated sample images  y: simulated target pixelmaps
     """
-    pass
+    num_background = num_samples * 0.25  # twenty percent of total samples
+    num_one = num_samples * 0.2  # twenty percent of total samples
+    num_two = num_samples * 0.2  # twenty percent of total samples
+    num_three = num_samples * 0.2  # twenty percent of total samples
+    num_four = num_samples * 0.1  # ten percent of total samples
+    num_five = num_samples * 0.05 # five percent of total samples
+    samples_list = [num_background, num_one, num_two, num_three, num_four, num_five]
+    colocal_list = [[[0,0,0,0,0,0,0]],
+                    [[1,0,0,0,0,0,0], [0,1,0,0,0,0,0], [0,0,1,0,0,0,0]],
+                    [[2,0,0,0,0,0,0], [0,2,0,0,0,0,0], [0,0,2,0,0,0,0], [0,1,1,0,0,0,0], [1,0,1,0,0,0,0]],
+                    [[3,0,0,0,0,0,0], [0,3,0,0,0,0,0], [0,0,3,0,0,0,0], [1,1,1,0,0,0,0], [2,0,1,0,0,0,0]],
+                    [[4,0,0,0,0,0,0], [0,4,0,0,0,0,0], [0,0,4,0,0,0,0], [2,1,1,0,0,0,0], [1,2,1,0,0,0,0]],
+                    [[5,0,0,0,0,0,0], [0,5,0,0,0,0,0], [0,0,5,0,0,0,0], [2,1,2,0,0,0,0], [2,2,1,0,0,0,0]],
+                    ]
+
+    # print(samples_list, sum(samples_list))
+    assert(sum(samples_list) == num_samples)
+    assert(sum(colocal_list[4][3]) == 4)
+    assert(sum(colocal_list[5][3]) == 5)
+
+    x = np.zeros([num_samples, width, height, 3])
+    y = np.zeros([num_samples, width, height])
+
+    # The goal of this loop is to simulate num_samples amount of sample and target images 
+    # while allowing to break up the amount of images with each amount of dot by changing the
+    # percentages above. 
+    for i in range(len(samples_list)): # loop through length of sample_list (also length of colocal_list)
+        for j in range(len(colocal_list[i])): # loop through the length of the ith list in colocal_list
+            for k in range(int(samples_list[i]/len(colocal_list[i]))): # loop through the amount of (samples in this category / length of colocal_list for this category)
+                X, Y = generate_simulated_microscopy_sample(
+                    colocalization = colocal_list[i][j],
+                    width = width,
+                    height = height)
+                
+                add_normal_noise_to_image(X,0.1)
+                x[i] = X
+                y[i] = Y
+
+
+    y = np.reshape(y, [num_samples, width, height, 1])
+
+    return [x, y]
 
 ##############################################################################
 
