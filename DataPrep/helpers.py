@@ -280,8 +280,8 @@ def f1_score(pixelmap1, pixelmap2):
 
 #################################################################################
 
-# TODO Impliment
-def generate_whole_dataset_stub(num_samples, width = 32, height = 32,
+
+def generate_whole_dataset(num_samples, width = 32, height = 32,
                                 coloc_thresh = 3,
                                 percent_zero = 0.25,
                                 percent_one = 0.2,

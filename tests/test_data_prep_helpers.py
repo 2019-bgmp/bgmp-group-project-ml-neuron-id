@@ -344,7 +344,7 @@ class TestHelpers(tests.testDataPrep):
             tests for simulating one target and one set of three example images
         """
         
-        x,y = generate_whole_dataset_stub(2000)
+        x,y = generate_whole_dataset(2000)
 
         self.assertEqual(x.shape, (2000, 32, 32, 3))
         self.assertEqual(y.shape, (2000, 32, 32, 1))
