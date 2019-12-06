@@ -26,6 +26,7 @@ from DataPrep.helpers  import *
 
 ##############################################################################
 
+
 # ## Empirical images
 # empiricalg = "../Data/Empirical/L1-D01-g.bmp"
 # empiricals = "../Data/Empirical/L1-D01-s.bmp"

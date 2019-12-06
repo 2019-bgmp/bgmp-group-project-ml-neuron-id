@@ -120,6 +120,7 @@ def synquant_to_pixelmap(filename):
 
     return map
 
+
 ##############################################################################
 
 def colocalization(pixelmap_list):

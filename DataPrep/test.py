@@ -65,3 +65,4 @@ x,y = generate_whole_dataset(10000,percent_zero = 0.25,
 add_normal_noise_to_image(x,0.3)
 x.dump('../Data/Simulated/Colocalization_sample_simulated')
 y.dump('../Data/Simulated/Colocalization_target_simulated')
+
