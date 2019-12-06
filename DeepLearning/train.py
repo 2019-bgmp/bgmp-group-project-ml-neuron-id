@@ -26,46 +26,46 @@ from DataPrep.helpers  import *
 
 ##############################################################################
 
-## Empirical images
-empiricalg = "../Data/Empirical/L1-D01-g.bmp"
-empiricals = "../Data/Empirical/L1-D01-s.bmp"
-empiricalz = "../Data/Empirical/L1-D01-z.bmp"
-empirical_output = empirical_prep([empiricalg, empiricals, empiricalz])
+# ## Empirical images
+# empiricalg = "../Data/Empirical/L1-D01-g.bmp"
+# empiricals = "../Data/Empirical/L1-D01-s.bmp"
+# empiricalz = "../Data/Empirical/L1-D01-z.bmp"
+# empirical_output = empirical_prep([empiricalg, empiricals, empiricalz])
 
-## Annotation data
-width, height = 1024, 1024
-anno_file1 = "../Data/Annotation/annotation_output/L1-D01-g_output.csv"
-anno_file2 = "../Data/Annotation/annotation_output/L1-D01-s_output.csv"
-anno_file3 = "../Data/Annotation/annotation_output/L1-D01-z_output.csv"
-# Create three pixelmaps to use for colocalization       
-pixelmap1 = dot_click_annoation_file_to_pixelmap(
-    anno_file = anno_file1,
-    width = width,
-    height = height,
-    dot_radius = 2)
-pixelmap2 = dot_click_annoation_file_to_pixelmap(
-    anno_file = anno_file2,
-    width = width,
-    height = height,
-    dot_radius = 2)
-pixelmap3 = dot_click_annoation_file_to_pixelmap(
-    anno_file = anno_file3,
-    width = width,
-    height = height,
-    dot_radius = 2)
-# colocalization
-colocalized_output = colocalization([pixelmap1,pixelmap2,pixelmap3])
-# sub_patch annotations
-sub_annotations = sub_patch_pixelmap(colocalized_output)
-sub_annotations = np.expand_dims(sub_annotations, axis=3)
+# ## Annotation data
+# width, height = 1024, 1024
+# anno_file1 = "../Data/Annotation/annotation_output/L1-D01-g_output.csv"
+# anno_file2 = "../Data/Annotation/annotation_output/L1-D01-s_output.csv"
+# anno_file3 = "../Data/Annotation/annotation_output/L1-D01-z_output.csv"
+# # Create three pixelmaps to use for colocalization       
+# pixelmap1 = dot_click_annoation_file_to_pixelmap(
+#     anno_file = anno_file1,
+#     width = width,
+#     height = height,
+#     dot_radius = 2)
+# pixelmap2 = dot_click_annoation_file_to_pixelmap(
+#     anno_file = anno_file2,
+#     width = width,
+#     height = height,
+#     dot_radius = 2)
+# pixelmap3 = dot_click_annoation_file_to_pixelmap(
+#     anno_file = anno_file3,
+#     width = width,
+#     height = height,
+#     dot_radius = 2)
+# # colocalization
+# colocalized_output = colocalization([pixelmap1,pixelmap2,pixelmap3])
+# # sub_patch annotations
+# sub_annotations = sub_patch_pixelmap(colocalized_output)
+# sub_annotations = np.expand_dims(sub_annotations, axis=3)
 
-#for i in range(20):
-#    plt.imshow(empirical_output[i,:,:,:])
-#    plt.show()
-#sys.exit()
+# #for i in range(20):
+# #    plt.imshow(empirical_output[i,:,:,:])
+# #    plt.show()
+# #sys.exit()
 
-x = empirical_output
-y = sub_annotations
+# x = empirical_output
+# y = sub_annotations
 
 #print(x.shape)
 #print(y.shape)
@@ -74,24 +74,36 @@ y = sub_annotations
 
 # TODO should probably shuffle before here
 
-num_samples = 2500
-width = 32
-height = 32
-x = np.zeros([num_samples, width, height, 3])
-y = np.zeros([num_samples, width, height])
-for i in range(num_samples):
-    X, Y = generate_simulated_microscopy_sample(
-        colocalization = [2] + [0 for _ in range(6)],
-        width = width,
-        height = height)
+# num_samples = 2500
+# width = 32
+# height = 32
+# x = np.zeros([num_samples, width, height, 3])
+# y = np.zeros([num_samples, width, height])
+# for i in range(num_samples):
+#     X, Y = generate_simulated_microscopy_sample(
+#         colocalization = [2] + [0 for _ in range(6)],
+#         width = width,
+#         height = height)
 
-    # negative control
-    #X = np.zeros([width, height, 3])
+#     # negative control
+#     #X = np.zeros([width, height, 3])
     
-    add_normal_noise_to_image(X,0.1)
-    x[i] = X
-    y[i] = Y
-y = np.reshape(y, [num_samples, width, height, 1])
+#     add_normal_noise_to_image(X,0.1)
+#     x[i] = X
+#     y[i] = Y
+# y = np.reshape(y, [num_samples, width, height, 1])
+
+
+## Simulated Images
+print("before load")
+x = np.load('../Data/Simulated/Colocalization_sample_simulated', allow_pickle=True)
+y = np.load('../Data/Simulated/Colocalization_target_simulated', allow_pickle=True)
+print("after load")
+# x = np.load('../Data/Simulated/Easy_sample_simulated', allow_pickle=True)
+# y = np.load('../Data/Simulated/Easy_target_simulated', allow_pickle=True)
+
+# x = np.load('../Data/Simulated/Background_sample_simulated', allow_pickle=True)
+# y = np.load('../Data/Simulated/Background_target_simulated', allow_pickle=True)
 
 print(x.shape)
 print(y.shape)

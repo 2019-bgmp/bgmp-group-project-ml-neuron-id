@@ -278,10 +278,17 @@ def f1_score(pixelmap1, pixelmap2):
 
     return 2/((1/precision) + (1/recall))
 
-##############################################################################
+#################################################################################
 
 # TODO Impliment
-def generate_whole_dataset_stub(num_samples, width = 32, height = 32):
+def generate_whole_dataset_stub(num_samples, width = 32, height = 32,
+                                coloc_thresh = 3,
+                                percent_zero = 0.25,
+                                percent_one = 0.2,
+                                percent_two = 0.2,
+                                percent_three = 0.2,
+                                percent_four = 0.1,
+                                percent_five = 0.05):
     """
     This function provides a simpler interface for running and saving a bunch of 
     these images. It allows you to change the percentage 
@@ -292,15 +299,54 @@ def generate_whole_dataset_stub(num_samples, width = 32, height = 32):
     
     :param: height <int> - height of the sample  DEFAULT = 32
 
-    :return: [x:4D numpy tensor, y:4D numpy tensor] - x: simulated sample images  y: simulated target pixelmaps
+    :param: coloc_thresh <int> - One of [1,2,3], which is the number of images with
+                                the same dot needed to colocalize to the final x and y
+                                DEFAULT = 3
+
+    :param: percent_zero <float> - value between 0 and 1 representing a percentage of 
+                                samples to just have background
+                                DEFAULT = 0.25
+
+    :param: percent_one <float> - value between 0 and 1 representing a percentage of 
+                                samples to have one colocalized bump
+                                DEFAULT = 0.2
+
+    :param: percent_two <float> - value between 0 and 1 representing a percentage of 
+                                samples to have two colocalized bumps
+                                DEFAULT = 0.2
+
+    :param: percent_three <float> - value between 0 and 1 representing a percentage of 
+                                samples to have three colocalized bumps
+                                DEFAULT = 0.2
+
+    :param: percent_four <float> - value between 0 and 1 representing a percentage of 
+                                samples to have four colocalized bumps
+                                DEFAULT = 0.1
+
+    :param: percent_five <float> - value between 0 and 1 representing a percentage of 
+                                samples to have five colocalized bumps
+                                DEFAULT = 0.05
+
+    :return: [x:4D numpy tensor, y:4D numpy tensor] - x: simulated sample images  
+                                                    y: simulated target pixelmaps
     """
-    num_background = num_samples * 0.25  # twenty percent of total samples
-    num_one = num_samples * 0.2  # twenty percent of total samples
-    num_two = num_samples * 0.2  # twenty percent of total samples
-    num_three = num_samples * 0.2  # twenty percent of total samples
-    num_four = num_samples * 0.1  # ten percent of total samples
-    num_five = num_samples * 0.05 # five percent of total samples
+    num_background = num_samples * percent_zero  # (percent_zero * 100) percent of total samples
+    num_one = num_samples * percent_one  # (percent_one * 100) percent of total samples
+    num_two = num_samples * percent_two  # (percent_two * 100) percent of total samples
+    num_three = num_samples * percent_three  # (percent_three * 100) percent of total samples
+    num_four = num_samples * percent_four  # (percent4 * 100) percent of total samples
+    num_five = num_samples * percent_five # (percent_five * 100) percent of total samples
     samples_list = [num_background, num_one, num_two, num_three, num_four, num_five]
+    
+    # [
+    # 0 - all_layers share. as well as the pixelmap
+    # 1 - just the 0, and 1 share
+    # 2 - just the 1 and 2 share
+    # 3 - just the 0 and 2 share
+    # 4 - just 0
+    # 5 - just 1
+    # 6 - just 2
+    # ]
     colocal_list = [[[0,0,0,0,0,0,0]],
                     [[1,0,0,0,0,0,0], [0,1,0,0,0,0,0], [0,0,1,0,0,0,0]],
                     [[2,0,0,0,0,0,0], [0,2,0,0,0,0,0], [0,0,2,0,0,0,0], [0,1,1,0,0,0,0], [1,0,1,0,0,0,0]],
@@ -310,9 +356,17 @@ def generate_whole_dataset_stub(num_samples, width = 32, height = 32):
                     ]
 
     # print(samples_list, sum(samples_list))
+    assert(percent_zero >= 0 and percent_zero <= 1)
+    assert(percent_one >= 0 and percent_one <= 1)
+    assert(percent_two >= 0 and percent_two <= 1)
+    assert(percent_three >= 0 and percent_three <= 1)
+    assert(percent_four >= 0 and percent_four <= 1)
+    assert(percent_five >= 0 and percent_five <= 1)
+    assert(sum([percent_zero, percent_one, percent_two, percent_three, percent_four, percent_five]))
     assert(sum(samples_list) == num_samples)
-    assert(sum(colocal_list[4][3]) == 4)
-    assert(sum(colocal_list[5][3]) == 5)
+    # assert(sum(colocal_list[4][3]) == 4)
+    # assert(sum(colocal_list[5][3]) == 5)
+    assert(coloc_thresh in [1,2,3])
 
     x = np.zeros([num_samples, width, height, 3])
     y = np.zeros([num_samples, width, height])
@@ -326,7 +380,8 @@ def generate_whole_dataset_stub(num_samples, width = 32, height = 32):
                 X, Y = generate_simulated_microscopy_sample(
                     colocalization = colocal_list[i][j],
                     width = width,
-                    height = height)
+                    height = height,
+                    coloc_thresh=coloc_thresh)
                 
                 add_normal_noise_to_image(X,0.1)
                 x[i] = X
